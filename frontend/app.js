@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://august_be:8001';  // or whatever you name the backend container
 
 // Load items when page loads
 document.addEventListener('DOMContentLoaded', () => {
