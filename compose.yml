@@ -1,0 +1,43 @@
+services:
+  august_db:
+    image: postgres:17.10-bookworm
+    container_name: august_db
+    environment:
+      POSTGRES_USER: zshan
+      POSTGRES_PASSWORD: zshan123
+    ports:
+      - "5432:5432"
+    volumes:
+      - august_db:/var/lib/postgresql/data
+    networks:
+      - august
+
+  august_be:
+    image: mzshanumar/august_backend:1.0
+    container_name: august_be
+    environment:
+      DATABASE_URL: postgresql://zshan:zshan123@august_db:5432/zshan
+    ports:
+      - "8001:8001"
+    networks:
+      - august
+    depends_on:
+      - august_db
+
+  august_fe:
+    image: mzshanumar/august_frontend:1.1
+    container_name: august_fe
+    ports:
+      - "3000:3000"
+    networks:
+      - august
+    depends_on:
+      - august_be
+
+networks:
+  august:
+    name: august
+
+volumes:
+  august_db:
+    name: august_db
