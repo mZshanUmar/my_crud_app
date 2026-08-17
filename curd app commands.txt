@@ -1,0 +1,8 @@
+docker build -t mzshanumar/august_backend:1.0 .
+docker build -t mzshanumar/august_frontend:1.0 .
+
+docker run --name august_db --network august -v august_db:/var/lib/postgresql/data -d -e POSTGRES_USER=zshan -e POSTGRES_PASSWORD=zshan123 -p 5432:5432 postgres:17.10-bookworm
+
+docker run --name august_be -e DATABASE_URL=postgresql://zshan:zshan123@august_db:5432/zshan --network august -d -p 8001:8001 mzshanumar/august_backend:1.0
+
+docker run --name august_fe --network august -d -p 3000:3000 mzshanumar/august_frontend:1.1
