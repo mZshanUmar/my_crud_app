@@ -1,4 +1,4 @@
-FROM python:3.14.7-alpine3.24
+FROM python:3.12-slim
 
 WORKDIR /opt/backend 
 
