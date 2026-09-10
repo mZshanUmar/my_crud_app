@@ -10,13 +10,14 @@ pipeline {
         // Git Variables
         GIT_REPO        = "git@github.com:mZshanUmar/my_crud_app.git"
         BRANCH          = "main"
-        WS_DIR          = "."
+        LOCAL_APP_DIR   = "."
         IMAGE_TAG       = "${BUILD_NUMBER}"
         // AWS Variables
         AWS_CREDS       = credentials('aws_personal')
         AWS_REGION      = "us-east-1"
         // EC2 / SSH
         EC2_REMOTE_USER = "ec2-user"
+        REMOTE_APP_DIR  = "my_crud_app"
         SSH_KEY_PATH    = "/tmp/${JOB_NAME}_${BUILD_NUMBER}_key.pem"
     }
 
@@ -28,7 +29,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                sh 'git clone -b ${BRANCH} ${GIT_REPO} ${WS_DIR}'
+                sh 'git clone -b ${BRANCH} ${GIT_REPO} ${LOCAL_APP_DIR}'
             }
         }
 		
@@ -72,7 +73,6 @@ pipeline {
             }
         }
 		
-		
         stage('Confirm Docker Status on EC2') {
             steps {
                 script{env.DOCKER_RUNNING = isDockerRunning()}
@@ -92,6 +92,7 @@ pipeline {
                             sudo dnf install -y docker
                         fi
                         sudo systemctl enable --now docker
+                        sudo usermod -aG docker ${EC2_REMOTE_USER}
                     '
                 '''
                 script{env.DOCKER_RUNNING = isDockerRunning()}
@@ -102,7 +103,33 @@ pipeline {
                 '''
             }
         }
+        
+        stage('Sync Project Files with EC2'){
+            steps {
+                sh '''
+                    ssh -i ${SSH_KEY_PATH} ${EC2_REMOTE_USER}@${REMOTE_HOST} "mkdir -p ${REMOTE_APP_DIR}"
+                    rsync -av -e "ssh -i ${SSH_KEY_PATH}" --delete \
+                        --exclude='.git/' \
+                        --exclude='infra/' \
+                        ${LOCAL_APP_DIR} ${EC2_REMOTE_USER}@${REMOTE_HOST}:${REMOTE_APP_DIR}
+                '''
+            }
+        }
+        
+        stage('Deploy with Docker Compose'){
+            steps {
+                sh '''
+                    ssh -i ${SSH_KEY_PATH} ${EC2_REMOTE_USER}@${REMOTE_HOST} "
+                        cd ${REMOTE_APP_DIR} &&
+                        docker compose down --remove-orphans || true &&
+                        docker compose up -d --build
+                        docker image prune -f
+                    "
+                '''
+            }
+        }
     }
+    
     post {
         always {
             sh 'rm -f ${SSH_KEY_PATH} || true'
