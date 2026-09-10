@@ -114,6 +114,7 @@ resource "aws_instance" "my_app_server" {
 output "public_ip" {
   description = "Public IP address of the Jenkins EC2 instance"
   value       = aws_instance.my_app_server.public_ip
+  sensitive   = true
 }
 
 output "instance_id" {
@@ -124,9 +125,11 @@ output "instance_id" {
 output "secret_arn" {
   description = "ARN of the Secrets Manager secret holding the private key"
   value       = aws_secretsmanager_secret.jenkins_ssh_private_key.arn
+  sensitive   = true
 }
 
 output "ssh_command_hint" {
   description = "Reminder of how to retrieve the private key before SSHing in"
   value       = "aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.jenkins_ssh_private_key.name} --query SecretString --output text > key.pem && chmod 400 key.pem && ssh -i key.pem ec2-user@${aws_instance.my_app_server.public_ip}"
+  sensitive   = true
 }
