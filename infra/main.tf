@@ -122,14 +122,7 @@ output "instance_id" {
   value       = aws_instance.my_app_server.id
 }
 
-output "secret_arn" {
+output "private_key_secret" {
   description = "ARN of the Secrets Manager secret holding the private key"
-  value       = aws_secretsmanager_secret.jenkins_ssh_private_key.arn
-  sensitive   = true
-}
-
-output "ssh_command_hint" {
-  description = "Reminder of how to retrieve the private key before SSHing in"
-  value       = "aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.jenkins_ssh_private_key.name} --query SecretString --output text > key.pem && chmod 400 key.pem && ssh -i key.pem ec2-user@${aws_instance.my_app_server.public_ip}"
-  sensitive   = true
+  value       = aws_secretsmanager_secret.jenkins_ssh_private_key.name
 }
