@@ -1,10 +1,10 @@
 pipeline {
     agent any
-
     stages {
-        stage('Hello') {
+        stage('Build Images') {
             steps {
-                echo 'Hello World'
+                echo 'Initiating Building Docker images'
+                sh 'ls -la'
             }
         }
     }
