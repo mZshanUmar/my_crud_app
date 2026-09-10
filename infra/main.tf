@@ -128,5 +128,5 @@ output "secret_arn" {
 
 output "ssh_command_hint" {
   description = "Reminder of how to retrieve the private key before SSHing in"
-  value       = "aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.jenkins_ssh_private_key.name} --query SecretString --output text > key.pem && chmod 400 key.pem && ssh -i key.pem ec2-user@${aws_instance.jenkins_server.public_ip}"
+  value       = "aws secretsmanager get-secret-value --secret-id ${aws_secretsmanager_secret.jenkins_ssh_private_key.name} --query SecretString --output text > key.pem && chmod 400 key.pem && ssh -i key.pem ec2-user@${aws_instance.my_app_server.public_ip}"
 }
