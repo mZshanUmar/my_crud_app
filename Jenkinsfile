@@ -93,6 +93,19 @@ pipeline {
                         fi
                         sudo systemctl enable --now docker
                         sudo usermod -aG docker ${EC2_REMOTE_USER}
+
+                        if ! docker compose version &> /dev/null; then
+                            echo "Docker Compose plugin not found — installing..."
+                            sudo mkdir -p /usr/libexec/docker/cli-plugins
+                            sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/libexec/docker/cli-plugins/docker-compose
+                            sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+                            docker compose version
+                        fi
+                        
+                        mkdir -p ~/.docker/cli-plugins
+                        curl -Lo ~/.docker/cli-plugins/docker-buildx "https://github.com/docker/buildx/releases/download/v0.37.0/buildx-v0.37.0.linux-amd64"
+                        chmod +x ~/.docker/cli-plugins/docker-buildx
+                        docker buildx version
                     '
                 '''
                 script{env.DOCKER_RUNNING = isDockerRunning()}
