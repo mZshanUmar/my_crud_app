@@ -29,7 +29,7 @@ variable "allowed_ssh_cidr" {
 variable "secret_name" {
   description = "Name for the Secrets Manager secret that will hold the private key"
   type        = string
-  default     = "jenkins-ec2-ssh-private-key"
+  default     = "my-crud-app-ec2-ssh-private-key"
 }
 
 ############################################
